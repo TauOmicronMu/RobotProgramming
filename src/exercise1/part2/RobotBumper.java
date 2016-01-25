@@ -9,7 +9,7 @@ import rp.robotics.TouchSensorListener;
 import rp.systems.ControllerWithTouchSensor;
 import rp.systems.StoppableRunnable;
 
-public class RobotBumperProgram implements StoppableRunnable, ControllerWithTouchSensor,TouchSensorListener {
+public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor,TouchSensorListener {
 
 	/*
 	 * The configuration/pilot aren't going to change, so set these to final.
@@ -21,15 +21,17 @@ public class RobotBumperProgram implements StoppableRunnable, ControllerWithTouc
 	 * Is the robot running?
 	 */
 	private boolean isRunning = false;
+	
 	/*
 	 * Has the touch sensor been depressed?
-	 */	private boolean isPressed = false;
+	 */	
+	private boolean isPressed = false;
 	
 	/**
 	 * Create a new instance of the RobotBumperController class.
 	 * @param config The WheeledRobotConfiguration specific to this robot.
 	 */
-	public RobotBumperProgram(WheeledRobotConfiguration config) {
+	public RobotBumper(WheeledRobotConfiguration config) {
 		
 		this.config = config;
 		this.pilot = new DifferentialPilot(config.getWheelDiameter(), 
@@ -119,7 +121,7 @@ public class RobotBumperProgram implements StoppableRunnable, ControllerWithTouc
 	 * Create an instance of RobotBumperProgram, and run the program.
 	 */
 	public static void main(String[] args) {
-		RobotBumperProgram program = new RobotBumperProgram(RobotConfigs.EXPRESS_BOT);
+		RobotBumper program = new RobotBumper(RobotConfigs.EXPRESS_BOT);
 		program.run();
 	}
 }

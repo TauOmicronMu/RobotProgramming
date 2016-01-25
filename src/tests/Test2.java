@@ -1,3 +1,5 @@
+package tests;
+
 import java.util.ArrayList;
 
 import lejos.geom.Line;
