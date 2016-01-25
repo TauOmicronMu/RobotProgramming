@@ -1,3 +1,5 @@
+package exercise1.part2;
+
 import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.Delay;
 import rp.config.RobotConfigs;
@@ -21,8 +23,7 @@ public class RobotBumperProgram implements StoppableRunnable, ControllerWithTouc
 	private boolean isRunning = false;
 	/*
 	 * Has the touch sensor been depressed?
-	 */
-	private boolean isPressed = false;
+	 */	private boolean isPressed = false;
 	
 	/**
 	 * Create a new instance of the RobotBumperController class.
