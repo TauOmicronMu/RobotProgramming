@@ -6,12 +6,9 @@ import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.Delay;
 import rp.config.RobotConfigs;
 import rp.config.WheeledRobotConfiguration;
-import rp.robotics.TouchSensorEvent;
-import rp.robotics.TouchSensorListener;
-import rp.systems.ControllerWithTouchSensor;
 import rp.systems.StoppableRunnable;
 
-public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor,TouchSensorListener {
+public class RobotBumper implements StoppableRunnable, SensorPortListener {
 
 	/*
 	 * The configuration/pilot aren't going to change, so set these to final.
@@ -45,10 +42,10 @@ public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor
                                            config.getLeftWheel(), 
                                            config.getRightWheel());
 		
-		/*
-		 * Add a TouchSensorListener to the correct SensorPort.
-		 */
-		SensorPort.S1.addSensorPortListener((SensorPortListener) new TouchSensorListener());
+		
+		//m_system = new WheeledRobotSystem(_config);
+		//m_pilot = m_system.getPilot();
+		
 	}
 
 	@Override
@@ -57,12 +54,13 @@ public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor
 		 * The robot is now running, so set isRunning to true.
 		 */
 	    this.isRunning = true;
+	    
 		while(this.isRunning){
-			
 			/*
 			 * Drive pilot forward until another action is taken.
 			 */
 			pilot.forward();
+			
 			if(this.isRunning)
 			{
 				/*
@@ -97,33 +95,6 @@ public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor
 		this.isRunning = false;
 	}
 
-	@Override
-	/*
-	 * The sensor was pressed - set the isPressed boolean to true.
-	 * @see rp.robotics.TouchSensorListener#sensorPressed(rp.robotics.TouchSensorEvent)
-	 */
-	public void sensorPressed(TouchSensorEvent _e) {
-		this.isPressed = true;
-	}
-
-	@Override
-	/*
-	 * @see rp.robotics.TouchSensorListener#sensorReleased(rp.robotics.TouchSensorEvent)
-	 */
-	public void sensorReleased(TouchSensorEvent _e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	/*
-	 * @see rp.robotics.TouchSensorListener#sensorBumped(rp.robotics.TouchSensorEvent)
-	 */
-	public void sensorBumped(TouchSensorEvent _e) {
-		// TODO Auto-generated method stub
-		
-	}
-
 	/**
 	 * Returns the WheeledRobotConfig of the current robot.
 	 * @return the WheeledRobotConfig of the current robot.
@@ -137,6 +108,21 @@ public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor
 	 */
 	public static void main(String[] args) {
 		RobotBumper program = new RobotBumper(RobotConfigs.EXPRESS_BOT);
+		
+		//BumperController demo = new BumperController(new WheeledRobotConfiguration(0.056f, 0.175f, 0.230f, Motor.B, Motor.C));
+		
+		/*
+		 * Add a TouchSensorListener to the correct SensorPort.
+		 */
+		SensorPort.S1.addSensorPortListener(program);
 		program.run();
+	}
+
+	@Override
+	public void stateChanged(SensorPort aSource, int aOldValue, int aNewValue) {
+		//might need to change this
+		if(aNewValue < aOldValue)
+			this.isPressed = true;
+		
 	}
 }
