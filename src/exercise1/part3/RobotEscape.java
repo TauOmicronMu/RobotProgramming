@@ -125,9 +125,6 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 				this.isPressed = false;
 			}
 			
-			/*
-			 * TODO : Implement what happens when the WallSensor is out of range.
-			 */
 			if(!wallInRange && this.isRunning && !turnedLeft)
 			{
 				pilot.stop();
