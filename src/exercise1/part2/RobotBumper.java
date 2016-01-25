@@ -1,5 +1,7 @@
 package exercise1.part2;
 
+import lejos.nxt.SensorPort;
+import lejos.nxt.SensorPortListener;
 import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.Delay;
 import rp.config.RobotConfigs;
@@ -34,10 +36,19 @@ public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor
 	public RobotBumper(WheeledRobotConfiguration config) {
 		
 		this.config = config;
+		
+		/*
+		 * Create a new pilot, based on the WheeledRobotConfiguration.
+		 */
 		this.pilot = new DifferentialPilot(config.getWheelDiameter(), 
                                            config.getTrackWidth(), 
                                            config.getLeftWheel(), 
                                            config.getRightWheel());
+		
+		/*
+		 * Add a TouchSensorListener to the correct SensorPort.
+		 */
+		SensorPort.S1.addSensorPortListener((SensorPortListener) new TouchSensorListener());
 	}
 
 	@Override
@@ -71,7 +82,7 @@ public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor
 			if(this.isPressed && this.isRunning)
 			{
 				pilot.stop();
-				pilot.travel(-0.1f);
+				pilot.travel(-0.1F);
 				pilot.rotate(180.0);
 				this.isPressed = false;
 			}
