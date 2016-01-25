@@ -41,7 +41,11 @@ public class RobotBumper implements StoppableRunnable, ControllerWithTouchSensor
 	}
 
 	@Override
-	public void run() {
+    public void run() {
+		/*
+		 * The robot is now running, so set isRunning to true.
+		 */
+	    this.isRunning = true;
 		while(this.isRunning){
 			
 			/*
