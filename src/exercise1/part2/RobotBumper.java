@@ -105,7 +105,7 @@ public class RobotBumper implements StoppableRunnable, SensorPortListener {
 	
 	
 	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
-				0.054f, 0.107f, 0.245f, Motor.B, Motor.C);
+				0.054f, 0.107f, 0.245f, Motor.C, Motor.B);
 	
 	/**
 	 * Create an instance of RobotBumperProgram, and run the program.
