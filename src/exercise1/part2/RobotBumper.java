@@ -1,10 +1,10 @@
 package exercise1.part2;
 
+import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.SensorPortListener;
 import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.Delay;
-import rp.config.RobotConfigs;
 import rp.config.WheeledRobotConfiguration;
 import rp.systems.StoppableRunnable;
 
@@ -62,7 +62,7 @@ public class RobotBumper implements StoppableRunnable, SensorPortListener {
 			pilot.forward();
 			
 			if(this.isRunning)
-			{
+			{	
 				/*
 				 * Prevent this thread from dominating the CPU.
 				 */
@@ -103,11 +103,16 @@ public class RobotBumper implements StoppableRunnable, SensorPortListener {
 		return config;
 	}
 	
+	
+	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
+				0.054f, 0.107f, 0.245f, Motor.B, Motor.C);
+	
 	/**
 	 * Create an instance of RobotBumperProgram, and run the program.
 	 */
 	public static void main(String[] args) {
-		RobotBumper program = new RobotBumper(RobotConfigs.EXPRESS_BOT);
+		
+		RobotBumper program = new RobotBumper(Robit);
 		
 		//BumperController demo = new BumperController(new WheeledRobotConfiguration(0.056f, 0.175f, 0.230f, Motor.B, Motor.C));
 		

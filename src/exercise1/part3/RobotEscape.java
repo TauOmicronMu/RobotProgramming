@@ -1,10 +1,10 @@
 package exercise1.part3;
+import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.SensorPortListener;
 import lejos.nxt.UltrasonicSensor;
 import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.Delay;
-import rp.config.RobotConfigs;
 import rp.config.WheeledRobotConfiguration;
 import rp.systems.StoppableRunnable;
 
@@ -23,9 +23,9 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 	 */
 	private static float touchRange;
 	
-	private static boolean wallInRange = false;
+	private static boolean wallInRange = true;
 	
-	private static boolean turnedLeft = false;
+	private static boolean turnedLeft = true;
 	
 	/*
 	 * Is the robot running?
@@ -36,7 +36,6 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 	 * Has the touch sensor been depressed?
 	 */	
 	private boolean isPressed = false;
-	
 
 	/**
 	 * Create a new instance of the RobotBumperController class.
@@ -58,7 +57,7 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 	}
 
 	public static Runnable WallSensor = new Runnable()
-	{
+	{	
 		@Override
 		public void run()
 		{
@@ -69,7 +68,7 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 					if((USSensor.getRange())/100 <= touchRange) {
 						wallInRange = true;
 						turnedLeft = false;
-					}
+					}	
 				}
 				else
 				{
@@ -118,19 +117,19 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 			 *    will be set back to true when an event is created).
 			 */
 			if(this.isPressed && this.isRunning)
-			{
+			{	
 				pilot.stop();
-				pilot.travel(-0.1F);
-				pilot.rotate(-90.0);
+				pilot.travel(-0.05F);
+				pilot.rotate(90.0);
 				this.isPressed = false;
 			}
 			
 			if(!wallInRange && this.isRunning && !turnedLeft)
 			{
 				pilot.stop();
-				pilot.rotate(90.0);
+				pilot.rotate(-90.0);
 				turnedLeft = true;
-			}
+			}		
 		}
 	}
 	
@@ -150,11 +149,14 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 		return config;
 	}
 	
+	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
+			0.054f, 0.107f, 0.245f, Motor.B, Motor.C);
+	
 	/**
 	 * Create an instance of RobotBumperProgram, and run the program.
 	 */
 	public static void main(String[] args) {
-		RobotEscape program = new RobotEscape(RobotConfigs.EXPRESS_BOT, 0.2f);
+		RobotEscape program = new RobotEscape(Robit, 0.2f);
 		/*
 		 * Add a TouchSensorListener to the correct SensorPort.
 		 */
@@ -165,10 +167,10 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 		wallSensorThread.start();
 		program.run();
 	}
-
+	
 	@Override
 	public void stateChanged(SensorPort aSource, int aOldValue, int aNewValue) {
-		this.isPressed = true;
-		
+		if(aNewValue < aOldValue)
+			this.isPressed = true;
 	}
 }
