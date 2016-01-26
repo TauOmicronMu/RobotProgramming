@@ -11,6 +11,12 @@ import rp.systems.StoppableRunnable;
 public class RobotBumper implements StoppableRunnable, SensorPortListener {
 
 	/*
+	 * The specific WheeledRobotConfiguration for our robot based on our measurements.
+	 */
+	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
+			0.054f, 0.107f, 0.245f, Motor.C, Motor.B);
+	
+	/*
 	 * The configuration/pilot aren't going to change, so set these to final.
 	 */
 	private final WheeledRobotConfiguration config;
@@ -26,57 +32,41 @@ public class RobotBumper implements StoppableRunnable, SensorPortListener {
 	 */	
 	private boolean isPressed = false;
 	
+	
 	/**
-	 * Create a new instance of the RobotBumperController class.
+	 * Create a new instance of the RobotBumper class.
 	 * @param config The WheeledRobotConfiguration specific to this robot.
 	 */
 	public RobotBumper(WheeledRobotConfiguration config) {
 		
 		this.config = config;
-		
-		/*
-		 * Create a new pilot, based on the WheeledRobotConfiguration.
-		 */
+
 		this.pilot = new DifferentialPilot(config.getWheelDiameter(), 
                                            config.getTrackWidth(), 
                                            config.getLeftWheel(), 
                                            config.getRightWheel());
-		
-		
-		//m_system = new WheeledRobotSystem(_config);
-		//m_pilot = m_system.getPilot();
-		
 	}
 
+	/**
+	 * Main run method of the robot.
+	 * It will drive forward until the bumper is pressed,
+	 * at which point it will stop, reverse 10cm (0.1m), turn 180 degrees and drive forward.
+	 * This process will repeat forever.
+	 */
 	@Override
     public void run() {
-		/*
-		 * The robot is now running, so set isRunning to true.
-		 */
+
 	    this.isRunning = true;
 	    
 		while(this.isRunning){
-			/*
-			 * Drive pilot forward until another action is taken.
-			 */
+
 			pilot.forward();
 			
 			if(this.isRunning)
-			{	
-				/*
-				 * Prevent this thread from dominating the CPU.
-				 */
+			{
 				Delay.msDelay(40);
 			}
-			/*
-			 * If the robot is running and has hit an obstacle: 
-			 * >> Stop the robot;
-			 * >> Reverse the robot a small amount;
-			 * >> Rotate the robot 180 degrees;
-			 * >> Set the isPressed boolean to false, because the touch
-			 *    sensor should no longer be depressed (and if it is, it
-			 *    will be set back to true when an event is created).
-			 */
+
 			if(this.isPressed && this.isRunning)
 			{
 				pilot.stop();
@@ -87,10 +77,10 @@ public class RobotBumper implements StoppableRunnable, SensorPortListener {
 		}
 	}
 	
-	@Override
-	/* Stop the robot - set the isRunning boolean to false.
-	 * @see rp.systems.StoppableRunnable#stop()
+	/**
+	 * Stop method for the robot.
 	 */
+	@Override
 	public void stop() {
 		this.isRunning = false;
 	}
@@ -104,30 +94,25 @@ public class RobotBumper implements StoppableRunnable, SensorPortListener {
 	}
 	
 	
-	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
-				0.054f, 0.107f, 0.245f, Motor.C, Motor.B);
+	
 	
 	/**
-	 * Create an instance of RobotBumperProgram, and run the program.
+	 * Creates an instance of RobotBumper, adds a listener to the bumper in SensorPort.S1 and run the program.
 	 */
 	public static void main(String[] args) {
 		
 		RobotBumper program = new RobotBumper(Robit);
 		
-		//BumperController demo = new BumperController(new WheeledRobotConfiguration(0.056f, 0.175f, 0.230f, Motor.B, Motor.C));
-		
-		/*
-		 * Add a TouchSensorListener to the correct SensorPort.
-		 */
 		SensorPort.S1.addSensorPortListener(program);
 		program.run();
 	}
 
+	/**
+	 * Listens for when the bumper is pressed, and when it is isPressed is set to true.
+	 */
 	@Override
 	public void stateChanged(SensorPort aSource, int aOldValue, int aNewValue) {
-		//might need to change this
 		if(aNewValue < aOldValue)
 			this.isPressed = true;
-		
 	}
 }

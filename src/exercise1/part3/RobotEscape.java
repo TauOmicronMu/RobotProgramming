@@ -1,4 +1,5 @@
 package exercise1.part3;
+
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.SensorPortListener;
@@ -9,23 +10,49 @@ import rp.config.WheeledRobotConfiguration;
 import rp.systems.StoppableRunnable;
 
 public class RobotEscape implements StoppableRunnable, SensorPortListener {
-
+	
+	/*
+	 * The specific WheeledRobotConfiguration for our robot based on our measurements.
+	 */
+	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
+			0.054f, 0.107f, 0.245f, Motor.C, Motor.B);
+	
 	/*
 	 * The configuration/pilot aren't going to change, so set these to final.
 	 */
 	private final WheeledRobotConfiguration config;
 	private final DifferentialPilot pilot;
 	
+	/*
+	 * The ultrasonic sensor that will be used on the robot.
+	 * It is on the left of the robot and will be used to detect whether there is a wall in range.
+	 * If there is, it will continue forward.
+	 * If not, it will turn left.
+	 * This is to ensure that the robot follows the left wall.
+	 */
 	private static UltrasonicSensor USSensor;
 	
 	/*
+	 * Touch range of the ultrasonic sensor.
 	 * In meters.
 	 */
 	private static float touchRange;
 	
+	/*
+	 * Is there a wall in range of the ultrasonic sensor?
+	 * This is updated continuously as the robot is running.
+	 */
 	private static boolean wallInRange = true;
 	
-	private static boolean turnedLeft = true;
+	/*
+	 * Is the robot in search mode?
+	 */
+	private static boolean searchMode = true;
+	
+	/*
+	 * Is the robot currently turning left?
+	 */
+	private boolean turningLeft = false;
 	
 	/*
 	 * Is the robot running?
@@ -38,7 +65,7 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 	private boolean isPressed = false;
 
 	/**
-	 * Create a new instance of the RobotBumperController class.
+	 * Create a new instance of the RobotEscape class.
 	 * @param config The WheeledRobotConfiguration specific to this robot.
 	 */
 	public RobotEscape(WheeledRobotConfiguration config, float touchRange) {
@@ -56,6 +83,11 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 		
 	}
 
+	/*
+	 * Anonymous WallSensor class that updates the wallInRange boolean.
+	 * If in searchMode the robot will ignore the fact that there is no wall in range UNTIL a wall comes within range of the sensor. Then it returns to normal functionality.
+	 * Out of searchMode the sensor will function normally, checking whether a wall is in range.
+	 */
 	public static Runnable WallSensor = new Runnable()
 	{	
 		@Override
@@ -63,11 +95,11 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 		{
 			while(true)
 			{
-				if(turnedLeft)
+				if(searchMode)
 				{
 					if((USSensor.getRange())/100 <= touchRange) {
 						wallInRange = true;
-						turnedLeft = false;
+						searchMode = false;
 					}	
 				}
 				else
@@ -81,14 +113,16 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 					}
 				}
 				//System.out.println(USSensor.getDistance());
-
 				Delay.msDelay(40);
 			}
 		}
 	};
 	
-	private boolean turningLeft = false;
-	
+	/**
+	 * Main run method of the robot.
+	 * The robot will follow the left wall out of a maze by turning left when there is nothing on the left,
+	 * and turning right when the front touch sensor is bumped.
+	 */
 	@Override
     public void run() {
 		/*
@@ -98,7 +132,7 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 	    
 		while(this.isRunning){
 			/*
-			 * Drive pilot forward until another action is taken.
+			 * Drive pilot forward until another action is executed.
 			 */
 			pilot.forward();
 			
@@ -106,46 +140,47 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 			{
 				/*
 				 * Prevent this thread from dominating the CPU.
+				 * (allows other actions to be performed)
 				 */
 				Delay.msDelay(40);
 			}
+
 			/*
-			 * If the robot is running and has hit an obstacle: 
-			 * >> Stop the robot;
-			 * >> Reverse the robot a small amount;
-			 * >> Rotate the robot 180 degrees;
-			 * >> Set the isPressed boolean to false, because the touch
-			 *    sensor should no longer be depressed (and if it is, it
-			 *    will be set back to true when an event is created).
+			 * Wall out of range so turn left method.
+			 * If a wall is not in range of the ultrasonic sensor (facing left), and the robot is not in search mode,
+			 * it will initiate turningLeft (set to true), stop and rotate 90 degrees left. It also sets searchmode to true and stops turningLeft (set to false).
+			 * A delay is also used so that the robot drives clear of the wall it was detecting before it drove out of range.
 			 */
-			if(!wallInRange && this.isRunning && !turnedLeft)
+			if(!wallInRange && this.isRunning && !searchMode)
 			{
 				turningLeft = true;
 				Delay.msDelay(100);
 				pilot.stop();
 				pilot.rotate(90.0);
-				turnedLeft = true;
+				searchMode = true;
 				turningLeft = false;
 			}
+			
+			/*
+			 * Bump so turn right method.
+			 * Same bumper method as part 2, but doesn't reverse as far and only rotates 90 degrees to the right.
+			 * Also sets searchMode to true.
+			 */
 			if(this.isPressed && this.isRunning)
 			{	
 				pilot.stop();
 				pilot.travel(-0.08F);
 				pilot.rotate(-90.0);
 				this.isPressed = false;
-				turnedLeft = true;
-				//wallInRange = true;
+				searchMode = true;
 			}	
-			
-			
-			//Delay.msDelay(20);
 		}
 	}
 	
-	@Override
-	/* Stop the robot - set the isRunning boolean to false.
-	 * @see rp.systems.StoppableRunnable#stop()
+	/**
+	 * Stop method for the robot.
 	 */
+	@Override
 	public void stop() {
 		this.isRunning = false;
 	}
@@ -158,25 +193,28 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 		return config;
 	}
 	
-	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
-			0.054f, 0.107f, 0.245f, Motor.C, Motor.B);
-	
 	/**
-	 * Create an instance of RobotBumperProgram, and run the program.
+	 * Create an instance of RobotEscape program, and run the program.
+	 * Adds a listener to the touch sensor.
+	 * Adds an ultrasonic sensor.
+	 * Creates and starts the wallSensorThread.
 	 */
 	public static void main(String[] args) {
+		
 		RobotEscape program = new RobotEscape(Robit, 0.2f);
-		/*
-		 * Add a TouchSensorListener to the correct SensorPort.
-		 */
 		SensorPort.S1.addSensorPortListener(program);
-		//SensorPort.S2.addSensorPortListener(program);
 		USSensor = new UltrasonicSensor(SensorPort.S2);
 		Thread wallSensorThread = new Thread(WallSensor);
 		wallSensorThread.start();
 		program.run();
 	}
 	
+	/**
+	 * Listens for when the bumper is pressed, and when it is isPressed is set to true.
+	 * The listener cannot throw a state changed if the robot is turning left,
+	 * this stops both the Wall out of range, and Bump method from occurring simultaneously/interrupting each other.
+	 * This means that the Wall out of range so turn left method has priority.
+	 */
 	@Override
 	public void stateChanged(SensorPort aSource, int aOldValue, int aNewValue) {
 		if(!turningLeft)
