@@ -80,12 +80,14 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 						wallInRange = false;
 					}
 				}
-				
+				//System.out.println(USSensor.getDistance());
 
 				Delay.msDelay(40);
 			}
 		}
 	};
+	
+	private boolean turningLeft = false;
 	
 	@Override
     public void run() {
@@ -116,20 +118,27 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 			 *    sensor should no longer be depressed (and if it is, it
 			 *    will be set back to true when an event is created).
 			 */
-			if(this.isPressed && this.isRunning)
-			{	
-				pilot.stop();
-				pilot.travel(-0.05F);
-				pilot.rotate(-90.0);
-				this.isPressed = false;
-			}
-			
 			if(!wallInRange && this.isRunning && !turnedLeft)
 			{
+				turningLeft = true;
+				Delay.msDelay(100);
 				pilot.stop();
 				pilot.rotate(90.0);
 				turnedLeft = true;
-			}		
+				turningLeft = false;
+			}
+			if(this.isPressed && this.isRunning)
+			{	
+				pilot.stop();
+				pilot.travel(-0.08F);
+				pilot.rotate(-90.0);
+				this.isPressed = false;
+				turnedLeft = true;
+				//wallInRange = true;
+			}	
+			
+			
+			//Delay.msDelay(20);
 		}
 	}
 	
@@ -161,7 +170,7 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 		 * Add a TouchSensorListener to the correct SensorPort.
 		 */
 		SensorPort.S1.addSensorPortListener(program);
-		SensorPort.S2.addSensorPortListener(program);
+		//SensorPort.S2.addSensorPortListener(program);
 		USSensor = new UltrasonicSensor(SensorPort.S2);
 		Thread wallSensorThread = new Thread(WallSensor);
 		wallSensorThread.start();
@@ -170,7 +179,10 @@ public class RobotEscape implements StoppableRunnable, SensorPortListener {
 	
 	@Override
 	public void stateChanged(SensorPort aSource, int aOldValue, int aNewValue) {
-		if(aNewValue < aOldValue)
-			this.isPressed = true;
+		if(!turningLeft)
+		{
+			if(aNewValue < aOldValue)
+				this.isPressed = true;
+		}
 	}
 }
