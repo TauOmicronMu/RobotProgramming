@@ -1,3 +1,4 @@
+package Part1;
 import lejos.nxt.Button;
 import lejos.util.Delay;
 

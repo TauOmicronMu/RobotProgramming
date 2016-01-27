@@ -1,3 +1,5 @@
+package Part3;
+
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.SensorPortListener;
