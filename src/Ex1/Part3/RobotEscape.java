@@ -1,4 +1,4 @@
-package Part3;
+package Ex1.Part3;
 
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
