@@ -1,16 +1,12 @@
 package Ex2.Part1;
 
-import java.lang.annotation.Target;
 
 import lejos.nxt.Button;
 import lejos.nxt.LightSensor;
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
-import lejos.nxt.SensorPortListener;
-import lejos.nxt.UltrasonicSensor;
 import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.Delay;
-import lejos.nxt.addon.OpticalDistanceSensor;
 import rp.config.WheeledRobotConfiguration;
 import rp.systems.StoppableRunnable;
 

@@ -1,10 +1,8 @@
 package Ex2.Part1;
 
-import java.lang.annotation.Target;
 
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
-import lejos.nxt.SensorPortListener;
 import lejos.nxt.UltrasonicSensor;
 import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.Delay;
@@ -29,7 +27,7 @@ public class PropControl implements StoppableRunnable {
 	private boolean isRunning;
 
 	private float targetDistance;
-	private float currentDistance; 
+	//private float currentDistance; 
 	
 	private static OpticalDistanceSensor IRSensor;
 	private static UltrasonicSensor ultra;
