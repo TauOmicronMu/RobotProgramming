@@ -2,6 +2,7 @@ package Ex2.Part1;
 
 import java.lang.annotation.Target;
 
+import lejos.nxt.Button;
 import lejos.nxt.LightSensor;
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
@@ -54,27 +55,63 @@ public class LineFollow implements StoppableRunnable {
 
 	@Override
     public void run() {
+		
+		Double MyConst = 2.5;
+		
+		Button.waitForAnyPress();
+		int setBlackLeft = leftSensor.getLightValue();
+		System.out.println(setBlackLeft);
+		
+		Button.waitForAnyPress();
+		int setBlackRight = rightSensor.getLightValue();
+		System.out.println(setBlackRight);
+		
+		
+		Button.waitForAnyPress();
+		int setWhiteLeft = leftSensor.getLightValue();
+		System.out.println(setWhiteLeft);
+		
+		Button.waitForAnyPress();
+		int setWhiteRight = rightSensor.getLightValue();
+		System.out.println(setWhiteRight);
+		
+		int leftRange = setWhiteLeft - setBlackLeft;
+		int rightRange = setWhiteRight - setBlackRight;
+		
+		double propDiff = (double)(leftRange - rightRange)*MyConst;
+		System.out.println(propDiff);
+		
+		Button.waitForAnyPress();
+
+		
+		
 		/*
 		 * The robot is now running, so set isRunning to true.
 		 */
 	    this.isRunning = true;
 	    
-	    
 		while(this.isRunning){
-	
-			//System.out.println(leftSensor.getNormalizedLightValue());
 			
-			if(leftSensor.getNormalizedLightValue() < 400)
-			{
-				pilot.arcForward(0.1);
-			}
-			if(rightSensor.getNormalizedLightValue() < 400)
-			{
-				pilot.arcForward(-0.1);
-			}
+			
+			
+			pilot.setTravelSpeed(0.1);
+			
+			double rightError = rightSensor.getLightValue() - setBlackRight;
+			double leftError = leftSensor.getLightValue() - setBlackLeft;
+			
+			double arc = 1/((rightError- leftError)*MyConst + propDiff);
+			
+			
+			System.out.println(arc);
+			
+			if(arc == Double.POSITIVE_INFINITY)
+				pilot.forward();
+			else
+				pilot.arcForward(arc);
 			
 			//System.out.println("Waiting");
 			Delay.msDelay(10);
+			
 		}
 	}
 	
@@ -100,7 +137,7 @@ public class LineFollow implements StoppableRunnable {
 		
 		
 		leftSensor = new LightSensor(SensorPort.S3);
-		rightSensor = new LightSensor(SensorPort.S4);
+		rightSensor = new LightSensor(SensorPort.S1);
 
 		
 		program.run();

@@ -64,7 +64,7 @@ public class PropControl implements StoppableRunnable {
 		 */
 	    this.isRunning = true;
 	    
-	    int myConst = 1;
+	    double myConst = 3.0;
 	    
 		while(this.isRunning){
 			if(UltraMode)
