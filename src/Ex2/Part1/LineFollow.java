@@ -2,6 +2,7 @@ package Ex2.Part1;
 
 import java.lang.annotation.Target;
 
+import lejos.nxt.LightSensor;
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.SensorPortListener;
@@ -12,13 +13,14 @@ import lejos.nxt.addon.OpticalDistanceSensor;
 import rp.config.WheeledRobotConfiguration;
 import rp.systems.StoppableRunnable;
 
-public class PropControl implements StoppableRunnable {
+public class LineFollow implements StoppableRunnable {
 	
 	/*
 	 * The specific WheeledRobotConfiguration for our robot based on our measurements.
 	 */
 	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
 			0.054f, 0.107f, 0.245f, Motor.C, Motor.B);
+	
 	
 	/*
 	 * The configuration/pilot aren't going to change, so set these to final.
@@ -27,23 +29,18 @@ public class PropControl implements StoppableRunnable {
 	private final DifferentialPilot pilot;
 
 	private boolean isRunning;
-
-	private float targetDistance;
-	private float currentDistance; 
 	
-	private static OpticalDistanceSensor IRSensor;
-	private static UltrasonicSensor ultra;
+	private static LightSensor leftSensor;
+	private static LightSensor rightSensor;
 	
-	private boolean UltraMode = true;
 	
 	/**
-	 * Create a new instance of the PropControl class.
+	 * Create a new instance of the RobotEscape class.
 	 * @param config The WheeledRobotConfiguration specific to this robot.
 	 */
-	public PropControl(WheeledRobotConfiguration config, float targetDistance) {
+	public LineFollow(WheeledRobotConfiguration config) {
 		
 		this.config = config;
-		this.targetDistance = targetDistance;
 		/*
 		 * Create a new pilot, based on the WheeledRobotConfiguration.
 		 */
@@ -54,9 +51,7 @@ public class PropControl implements StoppableRunnable {
 		
 	}
 	
-	private  Float error;
-	
-	
+
 	@Override
     public void run() {
 		/*
@@ -64,33 +59,22 @@ public class PropControl implements StoppableRunnable {
 		 */
 	    this.isRunning = true;
 	    
-	    int myConst = 1;
 	    
 		while(this.isRunning){
-			if(UltraMode)
-			{
-				error = (ultra.getRange()/100.0f) - targetDistance;
-				System.out.println("error:" + ultra.getRange());
-			}
-			else
-			{
-				error = (IRSensor.getRange()/100.0f) - targetDistance;
-				System.out.println("error:" + IRSensor.getRange());
-			}
+	
+			//System.out.println(leftSensor.getNormalizedLightValue());
 			
-			if(error < 0)
+			if(leftSensor.getNormalizedLightValue() < 400)
 			{
-				pilot.setTravelSpeed(-1 * (error * myConst));
-				pilot.backward();
+				pilot.arcForward(0.1);
 			}
-			else
+			if(rightSensor.getNormalizedLightValue() < 400)
 			{
-				pilot.setTravelSpeed(error * myConst);
-				pilot.forward();
+				pilot.arcForward(-0.1);
 			}
 			
 			//System.out.println("Waiting");
-			Delay.msDelay(50);
+			Delay.msDelay(10);
 		}
 	}
 	
@@ -112,11 +96,12 @@ public class PropControl implements StoppableRunnable {
 
 	
 	public static void main(String[] args) {
-		PropControl program = new PropControl(Robit,0.2f);
+		LineFollow program = new LineFollow(Robit);
 		
-		ultra = new UltrasonicSensor(SensorPort.S2);
 		
-		IRSensor = new OpticalDistanceSensor(SensorPort.S1);
+		leftSensor = new LightSensor(SensorPort.S3);
+		rightSensor = new LightSensor(SensorPort.S4);
+
 		
 		program.run();
 	}
