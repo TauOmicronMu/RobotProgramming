@@ -1,4 +1,4 @@
-package Ex2.Part1;
+package Ex2.Part2;
 
 
 import lejos.nxt.Button;
@@ -10,7 +10,7 @@ import lejos.util.Delay;
 import rp.config.WheeledRobotConfiguration;
 import rp.systems.StoppableRunnable;
 
-public class LineFollow implements StoppableRunnable {
+public class LineFollow2 implements StoppableRunnable {
 	
 	/*
 	 * The specific WheeledRobotConfiguration for our robot based on our measurements.
@@ -22,8 +22,8 @@ public class LineFollow implements StoppableRunnable {
 	/*
 	 * The configuration/pilot aren't going to change, so set these to final.
 	 */
-	private final WheeledRobotConfiguration config;
-	private final DifferentialPilot pilot;
+	private WheeledRobotConfiguration config;
+	private static DifferentialPilot pilot;
 
 	private boolean isRunning;
 	
@@ -35,7 +35,7 @@ public class LineFollow implements StoppableRunnable {
 	 * Create a new instance of the RobotEscape class.
 	 * @param config The WheeledRobotConfiguration specific to this robot.
 	 */
-	public LineFollow(WheeledRobotConfiguration config) {
+	public LineFollow2(WheeledRobotConfiguration config) {
 		
 		this.config = config;
 		/*
@@ -49,7 +49,6 @@ public class LineFollow implements StoppableRunnable {
 		
 	}
 	
-
 	@Override
     public void run() {
 		
@@ -115,15 +114,12 @@ public class LineFollow implements StoppableRunnable {
 			
 			double arc = 1/((rightError - leftError)*MyConst);
 			
-			
-			System.out.println(rightError - leftError);
-			
+			//System.out.println(leftError);
 			if(arc == Double.POSITIVE_INFINITY)
 				pilot.forward();
 				
 			else
 				pilot.arcForward(arc);
-			
 			
 			Delay.msDelay(20);
 			
@@ -148,12 +144,14 @@ public class LineFollow implements StoppableRunnable {
 
 	
 	public static void main(String[] args) {
-		LineFollow program = new LineFollow(Robit);
+		LineFollow2 program = new LineFollow2(Robit);
 		
 		
 		leftSensor = new LightSensor(SensorPort.S3);
 		rightSensor = new LightSensor(SensorPort.S1);
-
+		
+		JunctionListenerThread myThread = new JunctionListenerThread(leftSensor, rightSensor, pilot);
+		myThread.start();
 		
 		program.run();
 	}
