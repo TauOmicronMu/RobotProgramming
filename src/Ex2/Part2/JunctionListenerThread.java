@@ -13,6 +13,7 @@ public class JunctionListenerThread extends Thread {
 	private LightSensor leftSensor;
 	private LightSensor rightSensor;
 	private DifferentialPilot pilot;
+	private boolean stopRoBit = false;
 	
 	public JunctionListenerThread(LightSensor leftSensor, LightSensor rightSensor, DifferentialPilot pilot)
 	{
@@ -28,15 +29,28 @@ public class JunctionListenerThread extends Thread {
 		boolean m_running = true;
 		while(m_running)
 		{
-			if(leftSensor.readValue() < 10 && rightSensor.readValue() < 10)
+			if(leftSensor.readValue() < 20 && rightSensor.readValue() < 20)
 			{
-				pilot.stop();
+				stopRoBit = true;
+				System.out.println("I should be stopping!");
 			}
+			else
+				stopRoBit = false;
 			try {
-				sleep(100);
+				sleep(30);
 			} catch (InterruptedException e) {
 				System.out.println("Woops i couldn't sleep... ahhh insomnia!... HEY JACK!!!");
 			}
 		}
+	}
+	
+	public void setStop()
+	{
+		stopRoBit = true;
+	}
+	
+	public boolean getStop()
+	{
+		return stopRoBit;
 	}
 }

@@ -1,6 +1,8 @@
 package Ex2.Part2;
 
 
+import java.util.Random;
+
 import lejos.nxt.Button;
 import lejos.nxt.LightSensor;
 import lejos.nxt.Motor;
@@ -30,6 +32,7 @@ public class LineFollow2 implements StoppableRunnable {
 	private static LightSensor leftSensor;
 	private static LightSensor rightSensor;
 	
+	private static JunctionListenerThread myThread;
 	
 	/**
 	 * Create a new instance of the RobotEscape class.
@@ -114,14 +117,47 @@ public class LineFollow2 implements StoppableRunnable {
 			
 			double arc = 1/((rightError - leftError)*MyConst);
 			
-			//System.out.println(leftError);
-			if(arc == Double.POSITIVE_INFINITY)
+			//System.out.println(leftSensor.readValue());
+			if(myThread.getStop())
+			{
+				pilot.stop();
+				pilot.travel(0.05f);
+				
+				
+				//Random left/right line selection Part 2 Extension code.
+				//Button.waitForAnyPress();
+				Random rand = new Random();
+				int max = 2;
+				int min = 1;
+				int randomNum = rand.nextInt((max - min) + 1) + min;
+				if(randomNum == 1)
+				{
+					pilot.rotate(90.0);
+				}
+				else
+				{
+					pilot.rotate(-90.0);
+				}
+				
+				//User input Part 2 Extension code.
+				/*Button.waitForAnyPress();
+				if(Button.LEFT.isDown()) {
+					pilot.rotate(-90.0);
+				}
+				else if(Button.RIGHT.isDown()) {
+					pilot.rotate(90.0);
+				}
+				else if(Button.ESCAPE.isDown()) {
+					pilot.rotate(180.0);
+				}*/
+			}
+			else if(arc == Double.POSITIVE_INFINITY)
 				pilot.forward();
 				
 			else
 				pilot.arcForward(arc);
 			
-			Delay.msDelay(20);
+			Delay.msDelay(40);
 			
 		}
 	}
@@ -150,7 +186,7 @@ public class LineFollow2 implements StoppableRunnable {
 		leftSensor = new LightSensor(SensorPort.S3);
 		rightSensor = new LightSensor(SensorPort.S1);
 		
-		JunctionListenerThread myThread = new JunctionListenerThread(leftSensor, rightSensor, pilot);
+		myThread = new JunctionListenerThread(leftSensor, rightSensor, pilot);
 		myThread.start();
 		
 		program.run();
