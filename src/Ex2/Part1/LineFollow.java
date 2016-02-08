@@ -1,6 +1,5 @@
 package Ex2.Part1;
 
-
 import lejos.nxt.Button;
 import lejos.nxt.LightSensor;
 import lejos.nxt.Motor;
@@ -27,6 +26,9 @@ public class LineFollow implements StoppableRunnable {
 
 	private boolean isRunning;
 	
+	/*
+	 * Set the two light sensors- left and right.
+	 */
 	private static LightSensor leftSensor;
 	private static LightSensor rightSensor;
 	

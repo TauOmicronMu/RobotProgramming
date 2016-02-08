@@ -29,11 +29,14 @@ public class LineFollow2 implements StoppableRunnable {
 
 	private boolean isRunning;
 	
+	//The two light sensors connected to the front of the robot.
 	private static LightSensor leftSensor;
 	private static LightSensor rightSensor;
 	
+	//Listener that monitors the values of the two light sensors.
 	private static JunctionListenerThread myThread;
 	
+	//Are we in user input mode or random mode?
 	private boolean userInput;
 	
 	/**
@@ -56,21 +59,23 @@ public class LineFollow2 implements StoppableRunnable {
 	
 	@Override
     public void run() {
-		
+		//Proportional control used for movement angle, constant defined here.
 		Double MyConst = 0.09;
 		
+		//TO MAKE A SYSTEM THAT CAN DEAL WITH MULTIPLE SITUATIONS AND LIGHTING LEVELS, WE CALIBRATE LIGHT SENSORS BEFORE STARTING.
+		//Calibrate the dark of left sensor
 		System.out.println("Calibrate dark left:");
 		Button.waitForAnyPress();
 		leftSensor.calibrateLow();
-		
+		//Calibrate the dark of right sensor
 		System.out.println("Calibrate dark right:");
 		Button.waitForAnyPress();
 		rightSensor.calibrateLow();
-		
+		//Calibrate the light of left sensor
 		System.out.println("Calibrate light left:");
 		Button.waitForAnyPress();
 		leftSensor.calibrateHigh();
-		
+		//Calibrate the light of right sensor.
 		System.out.println("Calibrate light right:");
 		Button.waitForAnyPress();
 		rightSensor.calibrateHigh();
@@ -84,6 +89,7 @@ public class LineFollow2 implements StoppableRunnable {
 		 */
 	    this.isRunning = true;
 	    
+	    //Allow the user to select if they want random or user input movement mode.
 	    System.out.println("Do you want Random or user Input movement? Enter for User, Escape for Random.");
 	    Button.waitForAnyPress();
 	    if(Button.ENTER.isDown()) {
@@ -97,9 +103,10 @@ public class LineFollow2 implements StoppableRunnable {
 	    
 	    
 		while(this.isRunning){
-			//working values - 0.2 travel speed and 0.07 MyConst (decreasing MyConst seems to make smoother)
+			//working values - 0.2 travel speed and 0.09 MyConst (decreasing MyConst seems to make smoother)
 			pilot.setTravelSpeed(0.2);
 			
+			//As sometimes the sensors appear to have - values and this should not be possible... normalise to working 0-100 range.
 			if(rightSensor.getLightValue() < 0)
 			{
 				rightError = 0.0;
@@ -126,54 +133,66 @@ public class LineFollow2 implements StoppableRunnable {
 				leftError = leftSensor.getLightValue();
 			}
 			
+			//Angle to turn... proportional control used here.
 			double arc = 1/((rightError - leftError)*MyConst);
 			
-			//System.out.println(leftSensor.readValue());
+			//If the robot should be stopping
 			if(myThread.getStop())
 			{
+				//Stop the robot.
 				pilot.stop();
+				//Travel 6cm (so that the robot is in a suitable position for rotation onto another line)
 				pilot.travel(0.06f);
-				
+				//If random mode is selected...
 				if(userInput == false)
 				{
-					//Random left/right line selection Part 2 Extension code.
-					//Butteon.waitForAnyPress();
+					//Random number generator.
 					Random rand = new Random();
+					//Max number
 					int max = 2;
+					//Min number
 					int min = 1;
+					//Choose number between 1 and 2.
 					int randomNum = rand.nextInt((max - min) + 1) + min;
 					if(randomNum == 1)
 					{
+						//Turn left
 						pilot.rotate(90.0);
 					}
+					//If random number is 2
 					else
 					{
+						//Turn right
 						pilot.rotate(-90.0);
 					}
 				}
+				//If user input movement mode
 				else
 				{
-					//User input Part 2 Extension code.
 					Button.waitForAnyPress();
+					//If user pressed left button
 					if(Button.LEFT.isDown()) {
 						pilot.rotate(-90.0);
 					}
+					//If user presses right button
 					else if(Button.RIGHT.isDown()) {
 						pilot.rotate(90.0);
 					}
+					//If escape...
 					else if(Button.ESCAPE.isDown()) {
 						pilot.rotate(180.0);
 					}
 				}
 			}
+			//If the arc value is 0, travel forwards.
 			else if(arc == Double.POSITIVE_INFINITY)
 				pilot.forward();
-				
+			//Else, turn at a specified angle.	
 			else
 				pilot.arcForward(arc);
 			
+			//Let other things run on the robot.
 			Delay.msDelay(40);
-			
 		}
 	}
 	
@@ -197,10 +216,10 @@ public class LineFollow2 implements StoppableRunnable {
 	public static void main(String[] args) {
 		LineFollow2 program = new LineFollow2(Robit);
 		
-		
+		//Assign the sensors their sensorports.
 		leftSensor = new LightSensor(SensorPort.S3);
 		rightSensor = new LightSensor(SensorPort.S1);
-		
+		//Start the listener thread for both sensors on a dark line at the same time.
 		myThread = new JunctionListenerThread(leftSensor, rightSensor, pilot);
 		myThread.start();
 		

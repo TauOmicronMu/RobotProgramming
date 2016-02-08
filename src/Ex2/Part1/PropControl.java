@@ -26,13 +26,19 @@ public class PropControl implements StoppableRunnable {
 
 	private boolean isRunning;
 
+	//Target distance away from an object.
 	private float targetDistance;
-	//private float currentDistance; 
 	
+	//The IR sensor being used to measure distance.
 	private static OpticalDistanceSensor IRSensor;
+	//The ultrasonic sensor being used to measure distance.
 	private static UltrasonicSensor ultra;
 	
+	//Are we using ultrasonic sensor or infrared?
 	private boolean UltraMode = false;
+	
+	//The error between actual distance and target distance from an object.
+	private  Float error;
 	
 	/**
 	 * Create a new instance of the PropControl class.
@@ -52,9 +58,6 @@ public class PropControl implements StoppableRunnable {
 		
 	}
 	
-	private  Float error;
-	
-	
 	@Override
     public void run() {
 		/*
@@ -62,32 +65,40 @@ public class PropControl implements StoppableRunnable {
 		 */
 	    this.isRunning = true;
 	    
+	    //Proportional constant, changing this varies speed change of robot as distance varies.
 	    float myConst = 2.0f;
 	    
 		while(this.isRunning){
+			//If using ultrasonic sensor.
 			if(UltraMode)
 			{
+				//Difference between distance and target distance.
 				error = (ultra.getRange()/100.0f) - targetDistance;
-				System.out.println("error:" + ultra.getRange());
 			}
+			//If using infrared sensor.
 			else
 			{
+				//Difference between distance and target distance.
 				error = ((IRSensor.getRange()/100.0f) - targetDistance) * myConst;
-				System.out.println("error:" + IRSensor.getRange());
 			}
 			
+			//If the error is negative and therefore below target distance.
 			if(error < 0)
 			{
+				//Set travel speed, multiple by -1 to make positive as does not like - speeds. Multiple by error for proportional speed.
 				pilot.setTravelSpeed(-1 * (pilot.getMaxTravelSpeed() * error));
+				//Move backwards.
 				pilot.backward();
 			}
 			else
 			{
+				//Set travel speed. Multiple by error for proportional speed.
 				pilot.setTravelSpeed(pilot.getMaxTravelSpeed() * error);
+				//Move forwards.
 				pilot.forward();
 			}
 			
-			//System.out.println("Waiting");
+			//Short delay for halt in updating.
 			Delay.msDelay(10);
 		}
 	}
@@ -112,8 +123,10 @@ public class PropControl implements StoppableRunnable {
 	public static void main(String[] args) {
 		PropControl program = new PropControl(Robit,0.3f);
 		
+		//Initialize the Ultrasonic sensor.
 		//ultra = new UltrasonicSensor(SensorPort.S2);
 		
+		//Initialize the IR sensor.
 		IRSensor = new OpticalDistanceSensor(SensorPort.S2);
 		
 		program.run();

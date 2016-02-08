@@ -1,11 +1,6 @@
 package Ex2.Part2;
 
-import javax.microedition.sensor.SensorInfo;
-import javax.microedition.sensor.SensorListener;
-
 import lejos.nxt.LightSensor;
-import lejos.nxt.SensorPort;
-import lejos.nxt.SensorPortListener;
 import lejos.robotics.navigation.DifferentialPilot;
 
 public class JunctionListenerThread extends Thread {
@@ -25,29 +20,33 @@ public class JunctionListenerThread extends Thread {
 	
 	public void run()
 	{	
-		System.out.println("Im added!");
 		boolean m_running = true;
 		while(m_running)
 		{
+			//Value should, in theory, range from 0 to 100, therefore if both are < 20 (on a dark line)...
 			if(leftSensor.readValue() < 20 && rightSensor.readValue() < 20)
 			{
+				//Stop the robot.
 				stopRoBit = true;
 			}
+			//Keep the robot going.
 			else
 				stopRoBit = false;
+			//Sleep to let other things happen on the robot.
 			try {
 				sleep(30);
 			} catch (InterruptedException e) {
+				//If interrupted, print message.
 				System.out.println("I couldn't sleep.");
 			}
 		}
 	}
-	
+	//Set robot stop state.
 	public void setStop()
 	{
 		stopRoBit = true;
 	}
-	
+	//Get robot stop state.
 	public boolean getStop()
 	{
 		return stopRoBit;
