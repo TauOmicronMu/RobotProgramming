@@ -34,6 +34,8 @@ public class LineFollow2 implements StoppableRunnable {
 	
 	private static JunctionListenerThread myThread;
 	
+	private boolean userInput;
+	
 	/**
 	 * Create a new instance of the RobotEscape class.
 	 * @param config The WheeledRobotConfiguration specific to this robot.
@@ -55,7 +57,7 @@ public class LineFollow2 implements StoppableRunnable {
 	@Override
     public void run() {
 		
-		Double MyConst = 0.07;
+		Double MyConst = 0.09;
 		
 		System.out.println("Calibrate dark left:");
 		Button.waitForAnyPress();
@@ -76,14 +78,23 @@ public class LineFollow2 implements StoppableRunnable {
 		double rightError;
 		double leftError;
 		
-		Button.waitForAnyPress();
 
-		
-		
 		/*
 		 * The robot is now running, so set isRunning to true.
 		 */
 	    this.isRunning = true;
+	    
+	    System.out.println("Do you want Random or user Input movement? Enter for User, Escape for Random.");
+	    Button.waitForAnyPress();
+	    if(Button.ENTER.isDown()) {
+	    	userInput = true;
+		}
+		else if(Button.ESCAPE.isDown()) {
+			userInput = false;
+		}
+	    
+	    Button.waitForAnyPress();
+	    
 	    
 		while(this.isRunning){
 			//working values - 0.2 travel speed and 0.07 MyConst (decreasing MyConst seems to make smoother)
@@ -121,35 +132,39 @@ public class LineFollow2 implements StoppableRunnable {
 			if(myThread.getStop())
 			{
 				pilot.stop();
-				pilot.travel(0.05f);
+				pilot.travel(0.06f);
 				
-				
-				//Random left/right line selection Part 2 Extension code.
-				//Button.waitForAnyPress();
-				Random rand = new Random();
-				int max = 2;
-				int min = 1;
-				int randomNum = rand.nextInt((max - min) + 1) + min;
-				if(randomNum == 1)
+				if(userInput == false)
 				{
-					pilot.rotate(90.0);
+					//Random left/right line selection Part 2 Extension code.
+					//Butteon.waitForAnyPress();
+					Random rand = new Random();
+					int max = 2;
+					int min = 1;
+					int randomNum = rand.nextInt((max - min) + 1) + min;
+					if(randomNum == 1)
+					{
+						pilot.rotate(90.0);
+					}
+					else
+					{
+						pilot.rotate(-90.0);
+					}
 				}
 				else
 				{
-					pilot.rotate(-90.0);
+					//User input Part 2 Extension code.
+					Button.waitForAnyPress();
+					if(Button.LEFT.isDown()) {
+						pilot.rotate(-90.0);
+					}
+					else if(Button.RIGHT.isDown()) {
+						pilot.rotate(90.0);
+					}
+					else if(Button.ESCAPE.isDown()) {
+						pilot.rotate(180.0);
+					}
 				}
-				
-				//User input Part 2 Extension code.
-				/*Button.waitForAnyPress();
-				if(Button.LEFT.isDown()) {
-					pilot.rotate(-90.0);
-				}
-				else if(Button.RIGHT.isDown()) {
-					pilot.rotate(90.0);
-				}
-				else if(Button.ESCAPE.isDown()) {
-					pilot.rotate(180.0);
-				}*/
 			}
 			else if(arc == Double.POSITIVE_INFINITY)
 				pilot.forward();

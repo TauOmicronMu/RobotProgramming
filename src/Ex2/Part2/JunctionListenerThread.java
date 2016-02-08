@@ -32,14 +32,13 @@ public class JunctionListenerThread extends Thread {
 			if(leftSensor.readValue() < 20 && rightSensor.readValue() < 20)
 			{
 				stopRoBit = true;
-				System.out.println("I should be stopping!");
 			}
 			else
 				stopRoBit = false;
 			try {
 				sleep(30);
 			} catch (InterruptedException e) {
-				System.out.println("Woops i couldn't sleep... ahhh insomnia!... HEY JACK!!!");
+				System.out.println("I couldn't sleep.");
 			}
 		}
 	}

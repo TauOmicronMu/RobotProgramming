@@ -16,7 +16,7 @@ public class PropControl implements StoppableRunnable {
 	 * The specific WheeledRobotConfiguration for our robot based on our measurements.
 	 */
 	public static final WheeledRobotConfiguration Robit = new WheeledRobotConfiguration(
-			0.054f, 0.107f, 0.245f, Motor.C, Motor.B);
+			0.055f, 0.112f, 0.230f, Motor.C, Motor.B);
 	
 	/*
 	 * The configuration/pilot aren't going to change, so set these to final.
@@ -32,7 +32,7 @@ public class PropControl implements StoppableRunnable {
 	private static OpticalDistanceSensor IRSensor;
 	private static UltrasonicSensor ultra;
 	
-	private boolean UltraMode = true;
+	private boolean UltraMode = false;
 	
 	/**
 	 * Create a new instance of the PropControl class.
@@ -62,7 +62,7 @@ public class PropControl implements StoppableRunnable {
 		 */
 	    this.isRunning = true;
 	    
-	    double myConst = 3.0;
+	    float myConst = 2.0f;
 	    
 		while(this.isRunning){
 			if(UltraMode)
@@ -72,23 +72,23 @@ public class PropControl implements StoppableRunnable {
 			}
 			else
 			{
-				error = (IRSensor.getRange()/100.0f) - targetDistance;
+				error = ((IRSensor.getRange()/100.0f) - targetDistance) * myConst;
 				System.out.println("error:" + IRSensor.getRange());
 			}
 			
 			if(error < 0)
 			{
-				pilot.setTravelSpeed(-1 * (error * myConst));
+				pilot.setTravelSpeed(-1 * (pilot.getMaxTravelSpeed() * error));
 				pilot.backward();
 			}
 			else
 			{
-				pilot.setTravelSpeed(error * myConst);
+				pilot.setTravelSpeed(pilot.getMaxTravelSpeed() * error);
 				pilot.forward();
 			}
 			
 			//System.out.println("Waiting");
-			Delay.msDelay(50);
+			Delay.msDelay(10);
 		}
 	}
 	
@@ -110,11 +110,11 @@ public class PropControl implements StoppableRunnable {
 
 	
 	public static void main(String[] args) {
-		PropControl program = new PropControl(Robit,0.2f);
+		PropControl program = new PropControl(Robit,0.3f);
 		
-		ultra = new UltrasonicSensor(SensorPort.S2);
+		//ultra = new UltrasonicSensor(SensorPort.S2);
 		
-		IRSensor = new OpticalDistanceSensor(SensorPort.S1);
+		IRSensor = new OpticalDistanceSensor(SensorPort.S2);
 		
 		program.run();
 	}
