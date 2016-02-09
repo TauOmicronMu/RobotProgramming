@@ -60,21 +60,24 @@ public class LineFollow2 implements StoppableRunnable {
 	@Override
     public void run() {
 		//Proportional control used for movement angle, constant defined here.
-		Double MyConst = 0.09;
+		Double MyConst = 0.1;
 		
 		//TO MAKE A SYSTEM THAT CAN DEAL WITH MULTIPLE SITUATIONS AND LIGHTING LEVELS, WE CALIBRATE LIGHT SENSORS BEFORE STARTING.
 		//Calibrate the dark of left sensor
 		System.out.println("Calibrate dark left:");
 		Button.waitForAnyPress();
 		leftSensor.calibrateLow();
+		
 		//Calibrate the dark of right sensor
 		System.out.println("Calibrate dark right:");
 		Button.waitForAnyPress();
 		rightSensor.calibrateLow();
+		
 		//Calibrate the light of left sensor
 		System.out.println("Calibrate light left:");
 		Button.waitForAnyPress();
 		leftSensor.calibrateHigh();
+		
 		//Calibrate the light of right sensor.
 		System.out.println("Calibrate light right:");
 		Button.waitForAnyPress();
@@ -90,7 +93,7 @@ public class LineFollow2 implements StoppableRunnable {
 	    this.isRunning = true;
 	    
 	    //Allow the user to select if they want random or user input movement mode.
-	    System.out.println("Do you want Random or user Input movement? Enter for User, Escape for Random.");
+	    System.out.println("Enter for User, Escape for Random.");
 	    Button.waitForAnyPress();
 	    if(Button.ENTER.isDown()) {
 	    	userInput = true;
@@ -192,7 +195,7 @@ public class LineFollow2 implements StoppableRunnable {
 				pilot.arcForward(arc);
 			
 			//Let other things run on the robot.
-			Delay.msDelay(40);
+			Delay.msDelay(20);
 		}
 	}
 	
