@@ -12,6 +12,8 @@ import lejos.util.Delay;
 import rp.config.WheeledRobotConfiguration;
 import rp.systems.StoppableRunnable;
 
+//COMIBINATION OF LINE FOLLOW IN PART 1 AND PART 2 - SELECTED BY ROBOT USER INPUT.
+
 public class LineFollow2 implements StoppableRunnable {
 	
 	/*
