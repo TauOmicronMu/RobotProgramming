@@ -122,7 +122,7 @@ public class PropControl implements StoppableRunnable {
 	
 	public static void main(String[] args) {
 		PropControl program = new PropControl(Robit,0.3f);
-		
+		//FROM THE INITIAL ULTRASONIC TESTING - USED IR INSTEAD BUT STILL INCLUDED.
 		//Initialize the Ultrasonic sensor.
 		//ultra = new UltrasonicSensor(SensorPort.S2);
 		

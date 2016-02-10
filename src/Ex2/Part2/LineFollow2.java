@@ -34,7 +34,7 @@ public class LineFollow2 implements StoppableRunnable {
 	private static LightSensor rightSensor;
 	
 	//Listener that monitors the values of the two light sensors.
-	private static JunctionListenerThread myThread;
+	private static JunctionDetectorThread junctionThread;
 	
 	//Are we in user input mode or random mode?
 	private boolean userInput;
@@ -140,7 +140,7 @@ public class LineFollow2 implements StoppableRunnable {
 			double arc = 1/((rightError - leftError)*MyConst);
 			
 			//If the robot should be stopping
-			if(myThread.getStop())
+			if(junctionThread.getStop())
 			{
 				//Stop the robot.
 				pilot.stop();
@@ -223,8 +223,8 @@ public class LineFollow2 implements StoppableRunnable {
 		leftSensor = new LightSensor(SensorPort.S3);
 		rightSensor = new LightSensor(SensorPort.S1);
 		//Start the listener thread for both sensors on a dark line at the same time.
-		myThread = new JunctionListenerThread(leftSensor, rightSensor, pilot);
-		myThread.start();
+		junctionThread = new JunctionDetectorThread(leftSensor, rightSensor, pilot);
+		junctionThread.start();
 		
 		program.run();
 	}
