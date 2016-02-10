@@ -3,14 +3,14 @@ package Ex2.Part2;
 import lejos.nxt.LightSensor;
 import lejos.robotics.navigation.DifferentialPilot;
 
-public class JunctionListenerThread extends Thread {
+public class JunctionDetectorThread extends Thread {
 
 	private LightSensor leftSensor;
 	private LightSensor rightSensor;
 	private DifferentialPilot pilot;
 	private boolean stopRoBit = false;
 	
-	public JunctionListenerThread(LightSensor leftSensor, LightSensor rightSensor, DifferentialPilot pilot)
+	public JunctionDetectorThread(LightSensor leftSensor, LightSensor rightSensor, DifferentialPilot pilot)
 	{
 		this.leftSensor = leftSensor;
 		this.rightSensor = rightSensor;
