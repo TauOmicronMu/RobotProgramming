@@ -1,3 +1,7 @@
+/*
+ * THIS FILE WAS UNUSED IN THE FINAL SOLUTION FOR THE EXERCISE. DO NOT MARK THIS.
+ */
+
 package Ex2.Part3;
 
 import lejos.nxt.addon.NXTCam;
